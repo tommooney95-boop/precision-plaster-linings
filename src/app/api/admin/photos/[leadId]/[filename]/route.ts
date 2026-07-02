@@ -1,21 +1,12 @@
 import { isDashboardAuthenticated } from "@/lib/dashboard/auth";
 import { isValidLeadId } from "@/lib/security/upload-validation";
-import { photoExists, getPhotoPath } from "@/lib/leads/photos";
+import { readLeadPhoto } from "@/lib/leads/photos";
 import { getLeadById } from "@/lib/leads/store";
-import { promises as fs } from "fs";
 import { NextResponse } from "next/server";
 
 interface RouteParams {
   params: Promise<{ leadId: string; filename: string }>;
 }
-
-const MIME: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".webp": "image/webp",
-  ".gif": "image/gif",
-};
 
 export async function GET(_request: Request, { params }: RouteParams) {
   if (!(await isDashboardAuthenticated())) {
@@ -29,8 +20,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Invalid lead ID" }, { status: 400 });
     }
 
-    // Prevent path traversal
-    if (filename.includes("..") || filename.includes("/")) {
+    if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
       return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
     }
 
@@ -39,17 +29,14 @@ export async function GET(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    if (!(await photoExists(leadId, filename))) {
+    const photo = await readLeadPhoto(leadId, filename);
+    if (!photo) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    const filePath = getPhotoPath(leadId, filename);
-    const buffer = await fs.readFile(filePath);
-    const ext = filename.slice(filename.lastIndexOf(".")).toLowerCase();
-
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(photo.buffer), {
       headers: {
-        "Content-Type": MIME[ext] ?? "application/octet-stream",
+        "Content-Type": photo.contentType,
         "Cache-Control": "private, max-age=3600",
       },
     });

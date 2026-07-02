@@ -1,6 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Lead, LeadFilters, LeadStats, LeadStatus } from "./types";
+import {
+  getSupabaseAdmin,
+  isSupabaseConfigured,
+  LEADS_TABLE,
+} from "@/lib/supabase/server";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const LEADS_FILE = path.join(DATA_DIR, "leads.json");
@@ -13,6 +18,8 @@ function normalizeLead(lead: Lead): Lead {
   };
 }
 
+/* ── File backend (local development fallback) ──────────────────── */
+
 async function ensureDataFile() {
   try {
     await fs.access(LEADS_FILE);
@@ -22,27 +29,77 @@ async function ensureDataFile() {
   }
 }
 
-async function readLeads(): Promise<Lead[]> {
+async function fileReadAll(): Promise<Lead[]> {
   await ensureDataFile();
   const raw = await fs.readFile(LEADS_FILE, "utf-8");
   const leads = JSON.parse(raw) as Lead[];
   return leads.map(normalizeLead);
 }
 
-async function writeLeads(leads: Lead[]) {
+async function fileWriteAll(leads: Lead[]) {
   await ensureDataFile();
   await fs.writeFile(LEADS_FILE, JSON.stringify(leads, null, 2), "utf-8");
 }
 
+/* ── Supabase backend (production) ──────────────────────────────── */
+
+interface LeadRow {
+  data: Lead;
+}
+
+async function supabaseReadAll(): Promise<Lead[]> {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from(LEADS_TABLE)
+    .select("data")
+    .order("score_total", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return ((data as LeadRow[]) ?? []).map((row) => normalizeLead(row.data));
+}
+
+function leadToRow(lead: Lead) {
+  return {
+    id: lead.id,
+    source: lead.source,
+    status: lead.status,
+    read: lead.read,
+    priority: lead.score.priority,
+    score_total: lead.score.total,
+    job_type: lead.project.jobType,
+    created_at: lead.createdAt,
+    updated_at: lead.updatedAt,
+    data: lead,
+  };
+}
+
+/* ── Shared read ────────────────────────────────────────────────── */
+
+async function readAllLeads(): Promise<Lead[]> {
+  return isSupabaseConfigured() ? supabaseReadAll() : fileReadAll();
+}
+
+/* ── Public API ─────────────────────────────────────────────────── */
+
 export async function saveLead(lead: Lead): Promise<Lead> {
-  const leads = await readLeads();
-  leads.unshift(normalizeLead(lead));
-  await writeLeads(leads);
-  return lead;
+  const normalized = normalizeLead(lead);
+
+  if (isSupabaseConfigured()) {
+    const sb = getSupabaseAdmin();
+    const { error } = await sb.from(LEADS_TABLE).insert(leadToRow(normalized));
+    if (error) throw error;
+    return normalized;
+  }
+
+  const leads = await fileReadAll();
+  leads.unshift(normalized);
+  await fileWriteAll(leads);
+  return normalized;
 }
 
 export async function getLeads(): Promise<Lead[]> {
-  const leads = await readLeads();
+  const leads = await readAllLeads();
   return leads.sort(
     (a, b) =>
       b.score.total - a.score.total ||
@@ -90,7 +147,18 @@ export function filterLeads(leads: Lead[], filters: LeadFilters): Lead[] {
 }
 
 export async function getLeadById(id: string): Promise<Lead | undefined> {
-  const leads = await readLeads();
+  if (isSupabaseConfigured()) {
+    const sb = getSupabaseAdmin();
+    const { data, error } = await sb
+      .from(LEADS_TABLE)
+      .select("data")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? normalizeLead((data as LeadRow).data) : undefined;
+  }
+
+  const leads = await fileReadAll();
   return leads.find((l) => l.id === id);
 }
 
@@ -98,7 +166,35 @@ export async function updateLead(
   id: string,
   updates: Partial<Pick<Lead, "status" | "read">>
 ): Promise<Lead | null> {
-  const leads = await readLeads();
+  if (isSupabaseConfigured()) {
+    const existing = await getLeadById(id);
+    if (!existing) return null;
+
+    const updated: Lead = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (updates.status && updates.status !== "new") {
+      updated.read = true;
+    }
+
+    const sb = getSupabaseAdmin();
+    const { error } = await sb
+      .from(LEADS_TABLE)
+      .update({
+        status: updated.status,
+        read: updated.read,
+        updated_at: updated.updatedAt,
+        data: updated,
+      })
+      .eq("id", id);
+    if (error) throw error;
+    return updated;
+  }
+
+  const leads = await fileReadAll();
   const index = leads.findIndex((l) => l.id === id);
   if (index === -1) return null;
 
@@ -112,7 +208,7 @@ export async function updateLead(
     leads[index].read = true;
   }
 
-  await writeLeads(leads);
+  await fileWriteAll(leads);
   return leads[index];
 }
 
@@ -128,7 +224,7 @@ export async function markLeadRead(id: string): Promise<Lead | null> {
 }
 
 export async function getLeadStats(): Promise<LeadStats> {
-  const leads = await readLeads();
+  const leads = await readAllLeads();
   const today = new Date().toDateString();
 
   return {
@@ -151,6 +247,6 @@ export async function getLeadStats(): Promise<LeadStats> {
 }
 
 export async function getProjectTypes(): Promise<string[]> {
-  const leads = await readLeads();
+  const leads = await readAllLeads();
   return [...new Set(leads.map((l) => l.project.jobType))].sort();
 }
