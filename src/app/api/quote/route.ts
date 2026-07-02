@@ -146,12 +146,8 @@ export async function POST(request: Request) {
 
   } catch (err) {
     console.error("Quote submission error:", err);
-    const detail =
-      err instanceof Error
-        ? err.message
-        : JSON.stringify(err, Object.getOwnPropertyNames(err ?? {}));
     return NextResponse.json(
-      { error: "Failed to process quote request", detail },
+      { error: "Failed to process quote request" },
       { status: 500 }
     );
   }
