@@ -1,0 +1,17 @@
+# Precision Plaster Linings — https://www.precisionplasterlinings.com.au
+# Generated to match src/app/robots.ts
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+
+Host: https://www.precisionplasterlinings.com.au
+Sitemap: https://www.precisionplasterlinings.com.au/sitemap.xml
