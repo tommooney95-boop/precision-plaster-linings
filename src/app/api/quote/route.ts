@@ -144,18 +144,16 @@ export async function POST(request: Request) {
 
     });
 
-  } catch {
-
+  } catch (err) {
+    console.error("Quote submission error:", err);
     return NextResponse.json(
-
-      { error: "Failed to process quote request" },
-
+      {
+        error: "Failed to process quote request",
+        detail: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 }
-
     );
-
   }
-
 }
 
 
