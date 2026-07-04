@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
-type LogoVariant = "default" | "reversed";
 type LogoDisplay = "full" | "mark";
 type LogoSize = "sm" | "md" | "lg" | "xl";
 
@@ -22,7 +21,6 @@ const MARK_SIZE_CLASSES: Record<LogoSize, string> = {
 };
 
 interface LogoProps {
-  variant?: LogoVariant;
   display?: LogoDisplay;
   size?: LogoSize;
   className?: string;
@@ -30,23 +28,13 @@ interface LogoProps {
 }
 
 export function Logo({
-  variant = "reversed",
   display = "full",
   size = "md",
   className,
   priority = false,
 }: LogoProps) {
-  const isReversed = variant === "reversed";
   const isMark = display === "mark";
-
-  const src = isMark
-    ? isReversed
-      ? siteConfig.brand.logoMarkReversed
-      : siteConfig.brand.logoMark
-    : isReversed
-      ? siteConfig.brand.logoReversed
-      : siteConfig.brand.logo;
-
+  const src = isMark ? siteConfig.brand.logoWhiteMark : siteConfig.brand.logoWhite;
   const width = isMark ? siteConfig.brand.markWidth : siteConfig.brand.width;
   const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 

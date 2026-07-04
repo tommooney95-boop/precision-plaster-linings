@@ -119,7 +119,7 @@ export function createOrganizationSchema() {
     url: siteConfig.url,
     logo: {
       "@type": "ImageObject",
-      url: `${siteConfig.url}${siteConfig.brand.logoReversed}`,
+      url: `${siteConfig.url}${siteConfig.brand.logoWhite}`,
       width: 2157,
       height: 1490,
     },

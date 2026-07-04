@@ -11,6 +11,8 @@ export const siteConfig = {
 
   // ── Brand assets ────────────────────────────────────────────────
   brand: {
+    logoWhite: "/brand/logo-white.png",
+    logoWhiteMark: "/brand/logo-white-mark.png",
     logo: "/brand/logo.png",
     logoReversed: "/brand/logo-reversed.png",
     logoMark: "/brand/logo-mark.png",

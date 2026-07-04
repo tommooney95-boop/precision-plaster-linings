@@ -15,13 +15,13 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "construction"],
     icons: [
       {
-        src: siteConfig.brand.logoReversed,
+        src: siteConfig.brand.logoWhite,
         sizes: "any",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: siteConfig.brand.logoReversed,
+        src: siteConfig.brand.logoWhite,
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

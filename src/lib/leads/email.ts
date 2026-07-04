@@ -76,7 +76,7 @@ function buildQuoteFormHtml(data: QuoteFormData, leadScore?: LeadScore): string 
 
   return `<div style="font-family:sans-serif;background:#111;color:#fff;padding:24px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="${siteConfig.url}${siteConfig.brand.logoReversed}" alt="${siteConfig.name}" width="220" style="max-width:220px;height:auto;" />
+      <img src="${siteConfig.url}${siteConfig.brand.logoWhite}" alt="${siteConfig.name}" width="220" style="max-width:220px;height:auto;" />
     </div>
     <h2 style="color:#D90429;text-align:center;">New Quote Request</h2>
     <table style="border-collapse:collapse;width:100%;max-width:600px;">${tableRows}</table>
