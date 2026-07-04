@@ -79,6 +79,7 @@ export function buildSummarySections(
 }
 
 import type { LeadScore } from "@/lib/leads/types";
+import { siteConfig } from "@/lib/site-config";
 
 export function buildSummaryHtml(
   answers: QuoteAssistantAnswers,
@@ -115,9 +116,10 @@ export function buildSummaryHtml(
 <html>
 <head><meta charset="utf-8"></head>
 <body style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#333;">
-  <div style="background:#111;padding:24px;border-radius:12px 12px 0 0;">
-    <h1 style="color:#fff;margin:0;font-size:20px;">New Quote Request</h1>
-    <p style="color:#999;margin:8px 0 0;font-size:14px;">Precision Plaster Linings — Quote Assistant</p>
+  <div style="background:#111;padding:24px;border-radius:12px 12px 0 0;text-align:center;">
+    <img src="${siteConfig.url}${siteConfig.brand.logoReversed}" alt="${siteConfig.name}" width="200" style="max-width:200px;height:auto;" />
+    <h1 style="color:#fff;margin:16px 0 0;font-size:20px;">New Quote Request</h1>
+    <p style="color:#999;margin:8px 0 0;font-size:14px;">Quote Assistant</p>
   </div>
   <div style="border:1px solid #eee;border-top:none;padding:24px;border-radius:0 0 12px 12px;">
     ${scoreHtml}

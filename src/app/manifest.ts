@@ -13,5 +13,19 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en-AU",
     orientation: "portrait-primary",
     categories: ["business", "construction"],
+    icons: [
+      {
+        src: siteConfig.brand.logoReversed,
+        sizes: "any",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: siteConfig.brand.logoReversed,
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+    ],
   };
 }

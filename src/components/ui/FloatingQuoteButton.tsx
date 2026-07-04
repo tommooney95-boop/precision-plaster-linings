@@ -1,6 +1,7 @@
 "use client";
 
 import { QuoteForm } from "@/components/forms/QuoteForm";
+import { Logo } from "@/components/ui/Logo";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useIsMobile, useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
@@ -86,9 +87,12 @@ export function FloatingQuoteButton() {
             )}
           >
             <div className="flex shrink-0 items-center justify-between border-b border-surface-border px-5 py-4">
-              <h2 className="text-lg font-bold text-white">
-                Request a Free Quote
-              </h2>
+              <div className="flex items-center gap-3">
+                <Logo size="sm" />
+                <h2 className="text-lg font-bold text-white">
+                  Request a Free Quote
+                </h2>
+              </div>
               <button
                 type="button"
                 onClick={close}

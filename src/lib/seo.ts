@@ -119,9 +119,9 @@ export function createOrganizationSchema() {
     url: siteConfig.url,
     logo: {
       "@type": "ImageObject",
-      url: `${siteConfig.url}/opengraph-image`,
-      width: 1200,
-      height: 630,
+      url: `${siteConfig.url}${siteConfig.brand.logoReversed}`,
+      width: 2157,
+      height: 1490,
     },
     contactPoint: {
       "@type": "ContactPoint",

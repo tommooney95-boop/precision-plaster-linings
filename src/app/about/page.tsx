@@ -1,6 +1,7 @@
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { CTABanner } from "@/components/ui/CTABanner";
+import { Logo } from "@/components/ui/Logo";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { createMetadata } from "@/lib/seo";
@@ -57,6 +58,9 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/70" />
         <div className="container-custom relative z-10 py-20">
           <Breadcrumbs items={[{ name: "About", href: "/about" }]} />
+          <div className="mb-6">
+            <Logo size="xl" />
+          </div>
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent">
             About Us
           </p>

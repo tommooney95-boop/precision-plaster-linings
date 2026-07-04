@@ -1,6 +1,7 @@
 "use client";
 
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { LogoLink } from "@/components/ui/Logo";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import { Menu, Phone, X } from "lucide-react";
@@ -40,16 +41,7 @@ export function Header() {
       )}
     >
       <div className="container-custom flex h-16 items-center justify-between md:h-20">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-lg font-bold text-white md:text-xl"
-          aria-label={`${siteConfig.name} - Home`}
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-black text-white">
-            PP
-          </span>
-          <span className="hidden sm:inline">{siteConfig.name}</span>
-        </Link>
+        <LogoLink size="md" priority className="h-8 md:h-12" />
 
         <nav
           className="hidden items-center gap-1 lg:flex"

@@ -16,6 +16,8 @@ import { useQuoteAssistant } from "@/hooks/useQuoteAssistant";
 
 import { useIsMobile, useScrollDirection } from "@/hooks/useScrollDirection";
 
+import { Logo } from "@/components/ui/Logo";
+
 import { siteConfig } from "@/lib/site-config";
 
 import { cn } from "@/lib/utils";
@@ -244,11 +246,7 @@ export function QuoteAssistantWidget() {
 
             <div className="flex items-center gap-3">
 
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-xs font-black text-white">
-
-                PP
-
-              </div>
+              <Logo size="sm" />
 
               <div>
 

@@ -1,12 +1,19 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { siteConfig } from "@/lib/site-config";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = `${siteConfig.name} - Professional Plastering Services`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OGImage() {
+export default async function OGImage() {
+  const logoBuffer = await readFile(
+    join(process.cwd(), "public/brand/logo-reversed.png")
+  );
+  const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -20,36 +27,14 @@ export default function OGImage() {
           background: "#111111",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            marginBottom: "32px",
-          }}
-        >
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "12px",
-              background: "#D90429",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: "28px",
-              fontWeight: 900,
-            }}
-          >
-            PP
-          </div>
-          <span
-            style={{ color: "white", fontSize: "36px", fontWeight: 700 }}
-          >
-            {siteConfig.name}
-          </span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- next/og ImageResponse requires native img */}
+        <img
+          src={logoSrc}
+          width={360}
+          height={249}
+          alt=""
+          style={{ marginBottom: "40px" }}
+        />
         <p
           style={{
             color: "white",
@@ -57,6 +42,7 @@ export default function OGImage() {
             fontWeight: 800,
             lineHeight: 1.15,
             maxWidth: "900px",
+            margin: 0,
           }}
         >
           {siteConfig.tagline}

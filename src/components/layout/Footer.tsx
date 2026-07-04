@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { LogoLink } from "@/components/ui/Logo";
 import { siteConfig } from "@/lib/site-config";
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
@@ -35,12 +36,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-black">
-                PP
-              </span>
-              {siteConfig.name}
-            </Link>
+            <LogoLink size="lg" />
             <p className="mt-4 text-sm leading-relaxed text-white/50">
               Professional plastering services for residential and commercial
               clients across {siteConfig.location.serviceArea}.

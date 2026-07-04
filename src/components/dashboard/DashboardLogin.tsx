@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/ui/Logo";
 import { siteConfig } from "@/lib/site-config";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 interface DashboardLoginProps {
@@ -42,10 +43,10 @@ export function DashboardLogin({ onSuccess }: DashboardLoginProps) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl border border-surface-border bg-surface p-8">
-        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-muted">
-          <Lock className="h-6 w-6 text-accent" aria-hidden="true" />
+        <div className="mb-6 flex justify-center">
+          <Logo size="xl" />
         </div>
-          <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+        <h1 className="text-center text-2xl font-bold text-white">Admin Dashboard</h1>
         <p className="mt-2 text-sm text-white/50">
           {siteConfig.name} — owner access only
         </p>

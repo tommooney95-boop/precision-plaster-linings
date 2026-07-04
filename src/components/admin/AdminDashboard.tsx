@@ -4,10 +4,11 @@ import { AdminLeadRow } from "@/components/admin/AdminLeadRow";
 import { AdminStatsBar } from "@/components/admin/AdminStatsBar";
 import { AdminToolbar } from "@/components/admin/AdminToolbar";
 import { DashboardLogin } from "@/components/dashboard/DashboardLogin";
+import { Logo } from "@/components/ui/Logo";
 import { siteConfig } from "@/lib/site-config";
 import type { Lead, LeadFilters, LeadStats, LeadStatus } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
-import { LogOut, RefreshCw, Shield } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const DEFAULT_FILTERS: LeadFilters = {
@@ -149,9 +150,7 @@ export function AdminDashboard() {
       <header className="sticky top-0 z-30 border-b border-surface-border bg-surface/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
-              <Shield className="h-4 w-4 text-white" aria-hidden="true" />
-            </div>
+            <Logo size="sm" />
             <div>
               <h1 className="text-sm font-bold text-white sm:text-base">Admin Dashboard</h1>
               <p className="hidden text-xs text-white/40 sm:block">{siteConfig.name}</p>

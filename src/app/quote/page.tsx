@@ -1,6 +1,7 @@
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { QuoteForm } from "@/components/forms/QuoteForm";
+import { Logo } from "@/components/ui/Logo";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { createMetadata } from "@/lib/seo";
 import { seoConfig } from "@/lib/seo-config";
@@ -34,6 +35,9 @@ export default function QuotePage() {
               <QuoteForm />
             </div>
             <aside className="space-y-6 lg:col-span-2">
+              <div className="flex justify-center rounded-2xl border border-surface-border bg-surface p-8">
+                <Logo size="lg" />
+              </div>
               <div className="rounded-2xl border border-surface-border bg-surface p-6">
                 <h2 className="text-lg font-bold text-white">
                   What Happens Next?
