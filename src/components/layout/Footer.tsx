@@ -36,7 +36,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <LogoLink size="lg" />
+            <LogoLink display="full" size="lg" />
             <p className="mt-4 text-sm leading-relaxed text-white/50">
               Professional plastering services for residential and commercial
               clients across {siteConfig.location.serviceArea}.

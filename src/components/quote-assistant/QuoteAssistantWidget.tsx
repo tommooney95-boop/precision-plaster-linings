@@ -246,7 +246,7 @@ export function QuoteAssistantWidget() {
 
             <div className="flex items-center gap-3">
 
-              <Logo size="sm" />
+              <Logo display="mark" size="sm" />
 
               <div>
 

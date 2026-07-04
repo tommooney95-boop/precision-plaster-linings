@@ -41,7 +41,8 @@ export function Header() {
       )}
     >
       <div className="container-custom flex h-16 items-center justify-between md:h-20">
-        <LogoLink size="md" priority />
+        <LogoLink display="mark" size="md" priority className="md:hidden" />
+        <LogoLink display="mark" size="lg" priority className="hidden md:inline-flex" />
 
         <nav
           className="hidden items-center gap-1 lg:flex"

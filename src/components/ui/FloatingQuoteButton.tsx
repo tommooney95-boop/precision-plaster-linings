@@ -88,7 +88,7 @@ export function FloatingQuoteButton() {
           >
             <div className="flex shrink-0 items-center justify-between border-b border-surface-border px-5 py-4">
               <div className="flex items-center gap-3">
-                <Logo size="sm" />
+                <Logo display="mark" size="sm" />
                 <h2 className="text-lg font-bold text-white">
                   Request a Free Quote
                 </h2>

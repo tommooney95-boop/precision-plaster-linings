@@ -150,7 +150,7 @@ export function AdminDashboard() {
       <header className="sticky top-0 z-30 border-b border-surface-border bg-surface/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <Logo size="sm" />
+            <Logo display="mark" size="sm" />
             <div>
               <h1 className="text-sm font-bold text-white sm:text-base">Admin Dashboard</h1>
               <p className="hidden text-xs text-white/40 sm:block">{siteConfig.name}</p>
