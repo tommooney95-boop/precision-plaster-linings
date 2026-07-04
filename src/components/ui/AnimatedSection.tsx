@@ -2,6 +2,8 @@
 
 
 
+import { useMounted } from "@/hooks/useMounted";
+
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -62,23 +64,9 @@ export function AnimatedSection({
 
 }: AnimatedSectionProps) {
 
+  const mounted = useMounted();
+
   const prefersReducedMotion = useReducedMotion();
-
-
-
-  if (prefersReducedMotion) {
-
-    return (
-
-      <section id={id} className={cn(className)}>
-
-        {children}
-
-      </section>
-
-    );
-
-  }
 
 
 
@@ -88,9 +76,9 @@ export function AnimatedSection({
 
       id={id}
 
-      initial="hidden"
+      initial={mounted && !prefersReducedMotion ? "hidden" : false}
 
-      whileInView="visible"
+      whileInView={prefersReducedMotion ? undefined : "visible"}
 
       viewport={{ once: true, margin: "-80px" }}
 

@@ -34,7 +34,7 @@ export const galleryImages: GalleryImage[] = [
   },
   {
     id: "4",
-    src: "https://images.unsplash.com/photo-1600566753190-17f0baa0a3b5?w=800&q=80",
+    src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
     alt: "Renovated bedroom with flawless ceiling and wall plaster",
     category: "Renovations",
     width: 800,

@@ -4,7 +4,7 @@ import type { Lead, LeadPriority, LeadStatus } from "@/lib/leads/types";
 import { PRIORITY_COLORS, PRIORITY_LABELS } from "@/lib/leads/scoring";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Mail, Phone } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface LeadCardProps {
   lead: Lead;
@@ -56,8 +56,11 @@ function ScoreRing({ score, priority }: { score: number; priority: LeadPriority 
 
 export function LeadCard({ lead, onStatusChange }: LeadCardProps) {
   const [expanded, setExpanded] = useState(lead.score.priority === "hot");
+  const [timeAgo, setTimeAgo] = useState("");
 
-  const timeAgo = getTimeAgo(new Date(lead.createdAt));
+  useEffect(() => {
+    setTimeAgo(getTimeAgo(new Date(lead.createdAt)));
+  }, [lead.createdAt]);
 
   return (
     <article

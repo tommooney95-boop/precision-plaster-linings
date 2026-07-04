@@ -2,12 +2,16 @@
 
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { TrustIndicators } from "@/components/ui/TrustIndicators";
+import { useMounted } from "@/hooks/useMounted";
 import { siteConfig } from "@/lib/site-config";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Phone } from "lucide-react";
 import Image from "next/image";
 
 export function HeroSection() {
+  const mounted = useMounted();
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section className="relative flex min-h-[90vh] items-center overflow-hidden">
       <Image
@@ -23,7 +27,9 @@ export function HeroSection() {
 
       <div className="container-custom relative z-10 py-32 md:py-40">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={
+            mounted && !prefersReducedMotion ? { opacity: 0, y: 30 } : false
+          }
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
           className="max-w-3xl"
@@ -35,7 +41,7 @@ export function HeroSection() {
             Professional Plastering Done Right The First Time
           </h1>
           <p className="mt-6 text-lg text-white/60 md:text-xl">
-            Residential &bull; Commercial &bull; Renovations &bull; Repairs
+            Residential • Commercial • Renovations • Repairs
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">

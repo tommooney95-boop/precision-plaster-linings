@@ -100,7 +100,7 @@ export default function HomePage() {
                 alt: `Commercial office plastering and fit-out — ${seoConfig.regionName} commercial plasterer`,
               },
               {
-                src: "https://images.unsplash.com/photo-1600566753190-17f0baa0a3b5?w=400&q=80",
+                src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80",
                 alt: `Renovation plastering with flawless ceiling and wall finish — ${siteConfig.location.suburb}`,
               },
             ].map((item) => (

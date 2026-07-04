@@ -47,7 +47,7 @@ export const projects: Project[] = [
     beforeImage:
       "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&q=80",
     afterImage:
-      "https://images.unsplash.com/photo-1600566753190-17f0baa0a3b5?w=600&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80",
   },
   {
     id: "4",
