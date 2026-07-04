@@ -8,18 +8,17 @@ type LogoDisplay = "full" | "mark";
 type LogoSize = "sm" | "md" | "lg" | "xl";
 
 const FULL_SIZE_CLASSES: Record<LogoSize, string> = {
-  sm: "h-9",
+  sm: "h-10",
   md: "h-12",
   lg: "h-16",
-  xl: "h-20",
+  xl: "h-[4.5rem]",
 };
 
-/** Square crop container for the hexagon icon mark only */
-const MARK_CONTAINER_CLASSES: Record<LogoSize, string> = {
-  sm: "h-9 w-11",
-  md: "h-11 w-14",
-  lg: "h-14 w-[4.5rem]",
-  xl: "h-16 w-20",
+const MARK_SIZE_CLASSES: Record<LogoSize, string> = {
+  sm: "h-9",
+  md: "h-11",
+  lg: "h-14",
+  xl: "h-16",
 };
 
 interface LogoProps {
@@ -37,40 +36,31 @@ export function Logo({
   className,
   priority = false,
 }: LogoProps) {
-  const src =
-    variant === "reversed"
+  const isReversed = variant === "reversed";
+  const isMark = display === "mark";
+
+  const src = isMark
+    ? isReversed
+      ? siteConfig.brand.logoMarkReversed
+      : siteConfig.brand.logoMark
+    : isReversed
       ? siteConfig.brand.logoReversed
       : siteConfig.brand.logo;
 
-  if (display === "mark") {
-    return (
-      <span
-        className={cn(
-          "relative inline-block shrink-0 overflow-hidden",
-          MARK_CONTAINER_CLASSES[size],
-          className
-        )}
-      >
-        <Image
-          src={src}
-          alt={siteConfig.name}
-          width={siteConfig.brand.width * 2}
-          height={siteConfig.brand.height * 2}
-          className="absolute left-1/2 top-0 h-[200%] w-auto max-w-none -translate-x-1/2"
-          priority={priority}
-          unoptimized
-        />
-      </span>
-    );
-  }
+  const width = isMark ? siteConfig.brand.markWidth : siteConfig.brand.width;
+  const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 
   return (
     <Image
       src={src}
       alt={siteConfig.name}
-      width={siteConfig.brand.width}
-      height={siteConfig.brand.height}
-      className={cn("w-auto object-contain", FULL_SIZE_CLASSES[size], className)}
+      width={width}
+      height={height}
+      className={cn(
+        "w-auto object-contain",
+        isMark ? MARK_SIZE_CLASSES[size] : FULL_SIZE_CLASSES[size],
+        className
+      )}
       priority={priority}
       unoptimized
     />
@@ -86,7 +76,7 @@ export function LogoLink({ href = "/", className, ...props }: LogoLinkProps) {
     <Link
       href={href}
       className={cn(
-        "inline-flex shrink-0 items-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)]",
+        "inline-flex shrink-0 items-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]",
         className
       )}
       aria-label={`${siteConfig.name} - Home`}

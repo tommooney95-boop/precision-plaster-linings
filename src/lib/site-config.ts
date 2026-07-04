@@ -13,10 +13,14 @@ export const siteConfig = {
   brand: {
     logo: "/brand/logo.png",
     logoReversed: "/brand/logo-reversed.png",
+    logoMark: "/brand/logo-mark.png",
+    logoMarkReversed: "/brand/logo-mark-reversed.png",
     logoJpg: "/brand/logo.jpg",
     logoReversedJpg: "/brand/logo-reversed.jpg",
     width: 216,
     height: 149,
+    markWidth: 250,
+    markHeight: 100,
   },
 
   // ── Location (easily editable) ──────────────────────────────────
