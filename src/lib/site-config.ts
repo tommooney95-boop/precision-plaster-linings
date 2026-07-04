@@ -11,18 +11,18 @@ export const siteConfig = {
 
   // ── Brand assets ────────────────────────────────────────────────
   brand: {
-    logoWhite: "/brand/logo-white.png",
-    logoWhiteMark: "/brand/logo-white-mark.png",
+    logoWhite: "/brand/ppl-logo-header.png",
+    logoWhiteMark: "/brand/ppl-logo-mark.png",
     logo: "/brand/logo.png",
     logoReversed: "/brand/logo-reversed.png",
     logoMark: "/brand/logo-mark.png",
     logoMarkReversed: "/brand/logo-mark-reversed.png",
     logoJpg: "/brand/logo.jpg",
     logoReversedJpg: "/brand/logo-reversed.jpg",
-    width: 216,
-    height: 149,
-    markWidth: 250,
-    markHeight: 100,
+    width: 2157,
+    height: 1490,
+    markWidth: 2157,
+    markHeight: 680,
   },
 
   // ── Location (easily editable) ──────────────────────────────────

@@ -1,6 +1,5 @@
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 
 type LogoDisplay = "full" | "mark";
@@ -39,18 +38,19 @@ export function Logo({
   const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 
   return (
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={src}
       alt={siteConfig.name}
       width={width}
       height={height}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
       className={cn(
         "w-auto object-contain",
         isMark ? MARK_SIZE_CLASSES[size] : FULL_SIZE_CLASSES[size],
         className
       )}
-      priority={priority}
-      unoptimized
     />
   );
 }
