@@ -11,8 +11,8 @@ export const siteConfig = {
 
   // ── Brand assets ────────────────────────────────────────────────
   brand: {
-    logoWhite: "/brand/ppl-logo-header.png",
-    logoWhiteMark: "/brand/ppl-logo-mark.png",
+    logoWhite: "/brand/ppl-logo-light.png",
+    logoWhiteMark: "/brand/ppl-logo-light-mark.png",
     logo: "/brand/logo.png",
     logoReversed: "/brand/logo-reversed.png",
     logoMark: "/brand/logo-mark.png",
