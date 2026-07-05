@@ -33,7 +33,7 @@ export function Logo({
   priority = false,
 }: LogoProps) {
   const isMark = display === "mark";
-  const src = isMark ? siteConfig.brand.logoWhiteMark : siteConfig.brand.logoWhite;
+  const src = `${isMark ? siteConfig.brand.logoWhiteMark : siteConfig.brand.logoWhite}?v=3`;
   const width = isMark ? siteConfig.brand.markWidth : siteConfig.brand.width;
   const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 
