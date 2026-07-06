@@ -33,7 +33,7 @@ export function Logo({
   priority = false,
 }: LogoProps) {
   const isMark = display === "mark";
-  const src = `${isMark ? siteConfig.brand.logoWhiteMark : siteConfig.brand.logoWhite}?v=3`;
+  const src = `${isMark ? siteConfig.brand.logoWhiteMark : siteConfig.brand.logoWhite}?v=4`;
   const width = isMark ? siteConfig.brand.markWidth : siteConfig.brand.width;
   const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 
@@ -64,7 +64,7 @@ export function LogoLink({ href = "/", className, ...props }: LogoLinkProps) {
     <Link
       href={href}
       className={cn(
-        "inline-flex shrink-0 items-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]",
+        "inline-flex shrink-0 items-center",
         className
       )}
       aria-label={`${siteConfig.name} - Home`}
