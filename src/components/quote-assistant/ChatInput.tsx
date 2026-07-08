@@ -1,9 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { Toast, type ToastVariant } from "@/components/ui/Toast";
 import type { FlowStep } from "@/lib/quote-assistant/types";
+import {
+  photoSuccessMessage,
+  validatePhotoFiles,
+} from "@/lib/client-photo-validation";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Upload } from "lucide-react";
+import { ArrowRight, CheckCircle, Upload } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 interface ChatInputProps {
@@ -44,6 +49,14 @@ export function ChatInput({ step, onSubmit, disabled }: ChatInputProps) {
   const [textValue, setTextValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [toast, setToast] = useState<{
+    message: string;
+    variant: ToastVariant;
+  } | null>(null);
+
+  function showToast(message: string, variant: ToastVariant = "success") {
+    setToast({ message, variant });
+  }
 
   if (step.inputType === "none") return null;
 
@@ -73,46 +86,85 @@ export function ChatInput({ step, onSubmit, disabled }: ChatInputProps) {
 
   if (step.inputType === "file") {
     return (
-      <div className="space-y-3">
-        <label className="relative block cursor-pointer">
-          <input
-            type="file"
-            accept="image/*"
-            multiple={step.multiple}
-            disabled={disabled}
-            className="absolute inset-0 cursor-pointer opacity-0"
-            onChange={(e) => {
-              const selected = Array.from(e.target.files ?? []);
-              setFiles(selected);
-            }}
-            aria-describedby="photo-upload-help"
-          />
-          <div className="flex items-center gap-3 rounded-xl border border-dashed border-surface-border bg-surface-elevated px-4 py-4 transition-colors hover:border-accent/50">
-            <Upload className="h-5 w-5 shrink-0 text-white/40" aria-hidden="true" />
-            <div>
-              <p className="text-sm text-white/70">
-                {files.length > 0
-                  ? `${files.length} photo${files.length > 1 ? "s" : ""} selected`
-                  : "Tap to upload photos"}
-              </p>
-              <p id="photo-upload-help" className="text-xs text-white/30">
-                JPG or PNG, optional
-              </p>
+      <>
+        <div className="space-y-3">
+          <label className="relative block cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              multiple={step.multiple}
+              disabled={disabled}
+              className="absolute inset-0 cursor-pointer opacity-0"
+              onChange={(e) => {
+                const selected = Array.from(e.target.files ?? []);
+                if (selected.length === 0) return;
+
+                const { valid, error: photoError } = validatePhotoFiles(
+                  selected,
+                  files.length
+                );
+
+                if (photoError) {
+                  showToast(photoError, "error");
+                  e.target.value = "";
+                  return;
+                }
+
+                const merged = [...files, ...valid];
+                setFiles(merged);
+                showToast(photoSuccessMessage(valid.length, merged.length));
+                e.target.value = "";
+              }}
+              aria-describedby="photo-upload-help"
+            />
+            <div
+              className={cn(
+                "flex items-center gap-3 rounded-xl border border-dashed px-4 py-4 transition-colors",
+                files.length > 0
+                  ? "border-accent/40 bg-accent-muted"
+                  : "border-surface-border bg-surface-elevated hover:border-accent/50"
+              )}
+            >
+              {files.length > 0 ? (
+                <CheckCircle
+                  className="h-5 w-5 shrink-0 text-accent"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Upload className="h-5 w-5 shrink-0 text-white/40" aria-hidden="true" />
+              )}
+              <div>
+                <p className="text-sm text-white/80">
+                  {files.length > 0
+                    ? `${files.length} photo${files.length > 1 ? "s" : ""} ready to upload`
+                    : "Tap to upload photos"}
+                </p>
+                <p id="photo-upload-help" className="text-xs text-white/30">
+                  JPG or PNG, optional (max 5)
+                </p>
+              </div>
             </div>
+          </label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              className="flex-1"
+              disabled={disabled}
+              onClick={() => onSubmit(files)}
+            >
+              {files.length > 0 ? "Continue" : "Continue without photos"}
+            </Button>
           </div>
-        </label>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            size="sm"
-            className="flex-1"
-            disabled={disabled}
-            onClick={() => onSubmit(files)}
-          >
-            {files.length > 0 ? "Continue" : "Continue without photos"}
-          </Button>
         </div>
-      </div>
+
+        <Toast
+          message={toast?.message ?? ""}
+          variant={toast?.variant}
+          visible={!!toast}
+          onDismiss={() => setToast(null)}
+        />
+      </>
     );
   }
 
