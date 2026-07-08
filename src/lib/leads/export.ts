@@ -31,6 +31,7 @@ export function leadsToCsv(leads: Lead[]): string {
     "Water Damage",
     "Description",
     "Photos",
+    "Review Email Sent",
     "Recommendation",
   ];
 
@@ -58,6 +59,7 @@ export function leadsToCsv(leads: Lead[]): string {
       lead.project.waterDamage ? "Yes" : "No",
       lead.project.description ?? "",
       String(lead.photos.length),
+      lead.reviewRequestSentAt ?? "",
       lead.score.recommendation,
     ]
       .map(escapeCsv)

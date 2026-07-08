@@ -10,6 +10,7 @@ import {
   Mail,
   MapPin,
   Phone,
+  Star,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -18,6 +19,7 @@ interface AdminLeadRowProps {
   onSelect: (lead: Lead) => void;
   onStatusChange: (id: string, status: LeadStatus) => void;
   onMarkRead: (id: string) => void;
+  onSendReviewRequest?: (id: string) => void;
   selected: boolean;
 }
 
@@ -26,6 +28,7 @@ const STATUS_OPTIONS: LeadStatus[] = [
   "contacted",
   "quoted",
   "won",
+  "completed",
   "lost",
 ];
 
@@ -47,6 +50,7 @@ export function AdminLeadRow({
   onSelect,
   onStatusChange,
   onMarkRead,
+  onSendReviewRequest,
   selected,
 }: AdminLeadRowProps) {
   const [expanded, setExpanded] = useState(selected);
@@ -161,6 +165,7 @@ export function AdminLeadRow({
         <AdminLeadDetail
           lead={lead}
           onStatusChange={onStatusChange}
+          onSendReviewRequest={onSendReviewRequest}
           className="border-t border-surface-border"
         />
       )}
@@ -171,12 +176,14 @@ export function AdminLeadRow({
 interface AdminLeadDetailProps {
   lead: Lead;
   onStatusChange: (id: string, status: LeadStatus) => void;
+  onSendReviewRequest?: (id: string) => void;
   className?: string;
 }
 
 export function AdminLeadDetail({
   lead,
   onStatusChange,
+  onSendReviewRequest,
   className,
 }: AdminLeadDetailProps) {
   return (
@@ -256,6 +263,37 @@ export function AdminLeadDetail({
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-5 rounded-xl border border-surface-border bg-surface-elevated p-4">
+          <h4 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
+            <Star className="h-3.5 w-3.5" aria-hidden="true" />
+            Job complete &amp; review
+          </h4>
+          {lead.reviewRequestSentAt ? (
+            <p className="text-xs text-white/60">
+              Review email sent{" "}
+              {new Date(lead.reviewRequestSentAt).toLocaleString("en-AU", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+            </p>
+          ) : (
+            <p className="text-xs text-white/50">
+              Set status to <strong className="text-white/70">completed</strong> to
+              automatically email the customer a Google review link.
+            </p>
+          )}
+          {onSendReviewRequest && !lead.reviewRequestSentAt && (
+            <button
+              type="button"
+              onClick={() => onSendReviewRequest(lead.id)}
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-accent-hover"
+            >
+              <Star className="h-3.5 w-3.5" aria-hidden="true" />
+              Send review request now
+            </button>
+          )}
         </div>
 
         {lead.photos.length > 0 && (

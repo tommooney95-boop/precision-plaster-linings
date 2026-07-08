@@ -15,6 +15,7 @@ function normalizeLead(lead: Lead): Lead {
     ...lead,
     read: lead.read ?? false,
     photos: lead.photos ?? [],
+    reviewRequestSentAt: lead.reviewRequestSentAt ?? null,
   };
 }
 
@@ -164,7 +165,7 @@ export async function getLeadById(id: string): Promise<Lead | undefined> {
 
 export async function updateLead(
   id: string,
-  updates: Partial<Pick<Lead, "status" | "read">>
+  updates: Partial<Pick<Lead, "status" | "read" | "reviewRequestSentAt">>
 ): Promise<Lead | null> {
   if (isSupabaseConfigured()) {
     const existing = await getLeadById(id);

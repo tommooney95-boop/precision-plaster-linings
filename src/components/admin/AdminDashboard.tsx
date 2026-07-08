@@ -40,6 +40,41 @@ export function AdminDashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [actionMessage, setActionMessage] = useState<{
+    text: string;
+    tone: "success" | "warning" | "error";
+  } | null>(null);
+
+  function showActionMessage(
+    text: string,
+    tone: "success" | "warning" | "error" = "success"
+  ) {
+    setActionMessage({ text, tone });
+    window.setTimeout(() => setActionMessage(null), 6000);
+  }
+
+  async function patchLead(
+    id: string,
+    body: Record<string, unknown>
+  ): Promise<Lead | null> {
+    const res = await fetch(`/api/leads/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.message) {
+      const tone =
+        data.reviewEmail?.sent === true
+          ? "success"
+          : data.reviewEmail?.error
+            ? "error"
+            : "warning";
+      showActionMessage(data.message, tone);
+    }
+    return data.lead ?? null;
+  }
 
   const checkAuth = useCallback(async () => {
     const res = await fetch("/api/dashboard/auth");
@@ -86,13 +121,15 @@ export function AdminDashboard() {
   }
 
   async function handleStatusChange(id: string, status: LeadStatus) {
-    const res = await fetch(`/api/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (res.ok) {
-      const { lead } = await res.json();
+    const lead = await patchLead(id, { status });
+    if (lead) {
+      setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
+    }
+  }
+
+  async function handleSendReviewRequest(id: string) {
+    const lead = await patchLead(id, { sendReviewRequest: true });
+    if (lead) {
       setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
     }
   }
@@ -184,6 +221,23 @@ export function AdminDashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {actionMessage && (
+          <div
+            role="status"
+            className={cn(
+              "mb-4 rounded-xl border px-4 py-3 text-sm",
+              actionMessage.tone === "success" &&
+                "border-accent/30 bg-accent-muted text-white",
+              actionMessage.tone === "warning" &&
+                "border-yellow-500/30 bg-yellow-500/10 text-yellow-100",
+              actionMessage.tone === "error" &&
+                "border-accent/50 bg-accent/10 text-white"
+            )}
+          >
+            {actionMessage.text}
+          </div>
+        )}
+
         {stats && <AdminStatsBar stats={stats} />}
 
         <div className="mt-6">
@@ -226,6 +280,7 @@ export function AdminDashboard() {
                 onSelect={(l) => setSelectedId(l.id)}
                 onStatusChange={handleStatusChange}
                 onMarkRead={handleMarkRead}
+                onSendReviewRequest={handleSendReviewRequest}
               />
             ))
           )}

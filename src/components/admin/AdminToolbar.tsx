@@ -13,7 +13,15 @@ interface AdminToolbarProps {
 }
 
 const PRIORITIES: (LeadPriority | "all")[] = ["all", "hot", "high", "medium", "low"];
-const STATUSES: (LeadStatus | "all")[] = ["all", "new", "contacted", "quoted", "won", "lost"];
+const STATUSES: (LeadStatus | "all")[] = [
+  "all",
+  "new",
+  "contacted",
+  "quoted",
+  "won",
+  "completed",
+  "lost",
+];
 const SOURCES: (LeadSource | "all")[] = ["all", "quote-form", "quote-assistant"];
 
 const selectClass =

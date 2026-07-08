@@ -1,4 +1,8 @@
 import { isDashboardAuthenticated } from "@/lib/dashboard/auth";
+import {
+  markJobCompleted,
+  sendReviewRequestOnly,
+} from "@/lib/leads/complete-lead";
 import { markLeadRead, updateLead } from "@/lib/leads/store";
 import type { LeadStatus } from "@/lib/leads/types";
 import { NextResponse } from "next/server";
@@ -12,8 +16,27 @@ const VALID_STATUSES: LeadStatus[] = [
   "contacted",
   "quoted",
   "won",
+  "completed",
   "lost",
 ];
+
+function reviewMessage(reviewEmail: {
+  sent: boolean;
+  skipped?: string;
+  error?: string;
+}): string {
+  if (reviewEmail.sent) return "Review request email sent to customer.";
+  if (reviewEmail.skipped === "already_sent") {
+    return "Review request was already sent for this customer.";
+  }
+  if (reviewEmail.skipped === "no_email") {
+    return "No customer email on file — review request not sent.";
+  }
+  if (reviewEmail.skipped === "no_review_url") {
+    return "GOOGLE_REVIEW_URL is not configured — review request not sent.";
+  }
+  return reviewEmail.error ?? "Review request could not be sent.";
+}
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   if (!(await isDashboardAuthenticated())) {
@@ -30,7 +53,27 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       return NextResponse.json({ lead });
     }
 
+    if (body.sendReviewRequest === true) {
+      const { lead, reviewEmail } = await sendReviewRequestOnly(id);
+      if (!lead) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({
+        lead,
+        reviewEmail,
+        message: reviewMessage(reviewEmail),
+      });
+    }
+
     if (body.status && VALID_STATUSES.includes(body.status)) {
+      if (body.status === "completed") {
+        const { lead, reviewEmail } = await markJobCompleted(id);
+        if (!lead) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        return NextResponse.json({
+          lead,
+          reviewEmail,
+          message: reviewMessage(reviewEmail),
+        });
+      }
+
       const lead = await updateLead(id, { status: body.status });
       if (!lead) return NextResponse.json({ error: "Not found" }, { status: 404 });
       return NextResponse.json({ lead });

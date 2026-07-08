@@ -16,6 +16,7 @@ const STATUS_OPTIONS: LeadStatus[] = [
   "contacted",
   "quoted",
   "won",
+  "completed",
   "lost",
 ];
 

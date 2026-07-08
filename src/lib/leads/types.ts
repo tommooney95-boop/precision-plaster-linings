@@ -2,7 +2,13 @@ export type LeadPriority = "hot" | "high" | "medium" | "low";
 
 export type LeadSource = "quote-form" | "quote-assistant";
 
-export type LeadStatus = "new" | "contacted" | "quoted" | "won" | "lost";
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "quoted"
+  | "won"
+  | "completed"
+  | "lost";
 
 export interface LeadPhoto {
   filename: string;
@@ -78,6 +84,8 @@ export interface Lead {
   project: LeadProject;
   score: LeadScore;
   photos: LeadPhoto[];
+  /** ISO timestamp when the post-job Google review email was sent */
+  reviewRequestSentAt?: string | null;
 }
 
 export interface LeadStats {
