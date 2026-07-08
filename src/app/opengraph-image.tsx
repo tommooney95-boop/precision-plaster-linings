@@ -10,7 +10,7 @@ export const contentType = "image/png";
 
 export default async function OGImage() {
   const logoBuffer = await readFile(
-    join(process.cwd(), "public/brand/ppl-logo-light.png")
+    join(process.cwd(), "public/brand/logo-reversed.png")
   );
   const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
 

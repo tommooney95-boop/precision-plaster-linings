@@ -9,20 +9,16 @@ export const siteConfig = {
     "Premium residential and commercial plastering services across Albury–Wodonga and the surrounding NSW/Victoria border region. Gyprock, suspended ceilings, cornice installation, repairs, renovations and insurance work. Free quotes.",
   url: "https://www.precisionplasterlinings.com.au",
 
-  // ── Brand assets ────────────────────────────────────────────────
+  // ── Brand assets (files in public/brand/) ───────────────────────
   brand: {
-    logoWhite: "/brand/ppl-logo-light.png",
+    logoWhite: "/brand/logo-reversed.png",
     logoWhiteMark: "/brand/ppl-logo-light-mark.png",
-    logo: "/brand/logo.png",
-    logoReversed: "/brand/logo-reversed.png",
-    logoMark: "/brand/logo-mark.png",
-    logoMarkReversed: "/brand/logo-mark-reversed.png",
     logoJpg: "/brand/logo.jpg",
     logoReversedJpg: "/brand/logo-reversed.jpg",
     width: 2157,
     height: 1490,
     markWidth: 2157,
-    markHeight: 680,
+    markHeight: 596,
   },
 
   // ── Location (easily editable) ──────────────────────────────────
