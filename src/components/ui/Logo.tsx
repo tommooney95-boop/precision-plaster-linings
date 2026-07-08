@@ -38,20 +38,22 @@ export function Logo({
   const height = isMark ? siteConfig.brand.markHeight : siteConfig.brand.height;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={siteConfig.name}
-      width={width}
-      height={height}
-      decoding="async"
-      fetchPriority={priority ? "high" : "auto"}
-      className={cn(
-        "w-auto object-contain",
-        isMark ? MARK_SIZE_CLASSES[size] : FULL_SIZE_CLASSES[size],
-        className
-      )}
-    />
+    <span className="inline-flex [color-scheme:only_light]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={siteConfig.name}
+        width={width}
+        height={height}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        className={cn(
+          "w-auto object-contain [forced-color-adjust:none]",
+          isMark ? MARK_SIZE_CLASSES[size] : FULL_SIZE_CLASSES[size],
+          className
+        )}
+      />
+    </span>
   );
 }
 
@@ -63,10 +65,7 @@ export function LogoLink({ href = "/", className, ...props }: LogoLinkProps) {
   return (
     <Link
       href={href}
-      className={cn(
-        "inline-flex shrink-0 items-center",
-        className
-      )}
+      className={cn("inline-flex shrink-0 items-center", className)}
       aria-label={`${siteConfig.name} - Home`}
     >
       <Logo {...props} />
