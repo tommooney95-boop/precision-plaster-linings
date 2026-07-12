@@ -42,7 +42,7 @@ export const siteConfig = {
     phoneHref: "tel:+61400000000",
     email: "info@precisionplasterlinings.com.au",
     emailHref: "mailto:info@precisionplasterlinings.com.au",
-    hours: "Mon–Fri 7:00am – 5:00pm | Sat 8:00am – 12:00pm",
+    hours: "Mon–Fri 7:00am – 5:00pm",
   },
 
   // ── Social ────────────────────────────────────────────────────────

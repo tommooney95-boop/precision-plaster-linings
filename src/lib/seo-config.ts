@@ -160,7 +160,7 @@ export const seoConfig = {
 
       title: `Contact Us – ${regionName} Plasterer`,
 
-      description: `Contact ${siteConfig.name} for plastering in ${locationLabel}. Call ${siteConfig.contact.phone} or request a free online quote. Mon–Sat service available.`,
+      description: `Contact ${siteConfig.name} for plastering in ${locationLabel}. Call ${siteConfig.contact.phone} or request a free online quote. Mon–Fri service available.`,
 
     },
 

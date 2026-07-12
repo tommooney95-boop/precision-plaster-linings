@@ -180,12 +180,6 @@ export function createLocalBusinessSchema() {
         opens: "07:00",
         closes: "17:00",
       },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Saturday",
-        opens: "08:00",
-        closes: "12:00",
-      },
     ],
     sameAs: Object.values(siteConfig.social),
     hasOfferCatalog: {
