@@ -1,19 +1,12 @@
 import { buildLeadFromQuoteAssistant } from "@/lib/leads/normalize";
-
 import { saveLeadPhotos } from "@/lib/leads/photos";
-
 import { saveLead } from "@/lib/leads/store";
-
 import { sendQuoteAssistantEmail } from "@/lib/quote-assistant/email";
-
 import { buildQuoteSummary } from "@/lib/quote-assistant/summary";
-
 import type { QuoteAssistantAnswers } from "@/lib/quote-assistant/types";
-
+import { sendOwnerLeadAlertSms } from "@/lib/sms/owner-alert";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
-
 import { fileToValidated } from "@/lib/security/upload-validation";
-
 import { NextResponse } from "next/server";
 
 
@@ -127,25 +120,17 @@ export async function POST(request: Request) {
 
 
     await sendQuoteAssistantEmail({
-
       answers,
-
       photoBuffers,
-
       leadScore: lead.score,
-
     });
 
-
+    void sendOwnerLeadAlertSms(lead);
 
     return NextResponse.json({
-
       success: true,
-
       summary,
-
       leadId: lead.id,
-
       score: lead.score.total,
 
       priority: lead.score.priority,

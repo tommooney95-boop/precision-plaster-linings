@@ -385,12 +385,15 @@ export function AdminLeadDetail({
           </h4>
           {lead.reviewRequestSentAt ? (
             <p className="text-xs text-white/60">
-              Review email sent {formatDateTime(lead.reviewRequestSentAt)}
+              Review request sent{" "}
+              {formatDateTime(lead.reviewRequestSentAt)}
+              {" "}(email and/or SMS)
             </p>
           ) : (
             <p className="text-xs text-white/50">
               Set status to <strong className="text-white/70">completed</strong> to
-              automatically email the customer a Google review link.
+              automatically send the customer a Google review link by email
+              (and SMS if Twilio is connected).
             </p>
           )}
           {onSendReviewRequest && !lead.reviewRequestSentAt && (

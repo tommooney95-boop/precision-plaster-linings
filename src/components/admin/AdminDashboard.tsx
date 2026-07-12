@@ -96,11 +96,13 @@ export function AdminDashboard() {
       const data = await res.json();
       if (data.message) {
         const tone =
-          data.reviewEmail?.sent === true
-            ? "success"
-            : data.reviewEmail?.error
-              ? "error"
-              : "warning";
+          data.tone === "success" || data.tone === "warning" || data.tone === "error"
+            ? data.tone
+            : data.reviewEmail?.sent === true || data.reviewSms?.sent === true
+              ? "success"
+              : data.reviewEmail?.error || data.reviewSms?.error
+                ? "error"
+                : "warning";
         showActionMessage(data.message, tone);
         return { lead: data.lead ?? null, showedMessage: true };
       }

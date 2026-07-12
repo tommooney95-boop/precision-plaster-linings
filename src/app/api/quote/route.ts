@@ -1,17 +1,11 @@
 import { buildLeadFromQuoteForm } from "@/lib/leads/normalize";
-
 import { sendQuoteFormEmail } from "@/lib/leads/email";
-
 import { saveLeadPhotos } from "@/lib/leads/photos";
-
 import { saveLead } from "@/lib/leads/store";
-
+import { sendOwnerLeadAlertSms } from "@/lib/sms/owner-alert";
 import { getClientIp, rateLimit } from "@/lib/security/rate-limit";
-
 import { fileToValidated } from "@/lib/security/upload-validation";
-
 import type { QuoteFormData } from "@/data/quote-form";
-
 import { NextResponse } from "next/server";
 
 
@@ -121,27 +115,19 @@ export async function POST(request: Request) {
 
 
     await sendQuoteFormEmail(
-
       data,
-
       lead.score,
-
       filesToSave.map((f) => ({ filename: f.originalName, content: f.buffer }))
-
     );
 
-
+    // Fire-and-forget owner SMS (no delay to customer response)
+    void sendOwnerLeadAlertSms(lead);
 
     return NextResponse.json({
-
       success: true,
-
       leadId: lead.id,
-
       score: lead.score.total,
-
       priority: lead.score.priority,
-
     });
 
   } catch (err) {

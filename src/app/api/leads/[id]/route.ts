@@ -1,5 +1,6 @@
 import { isDashboardAuthenticated } from "@/lib/dashboard/auth";
 import {
+  buildReviewChannelsMessage,
   markJobCompleted,
   sendReviewRequestOnly,
 } from "@/lib/leads/complete-lead";
@@ -20,24 +21,6 @@ const VALID_STATUSES: LeadStatus[] = [
   "lost",
 ];
 
-function reviewMessage(reviewEmail: {
-  sent: boolean;
-  skipped?: string;
-  error?: string;
-}): string {
-  if (reviewEmail.sent) return "Review request email sent to customer.";
-  if (reviewEmail.skipped === "already_sent") {
-    return "Review request was already sent for this customer.";
-  }
-  if (reviewEmail.skipped === "no_email") {
-    return "No customer email on file — review request not sent.";
-  }
-  if (reviewEmail.skipped === "no_review_url") {
-    return "GOOGLE_REVIEW_URL is not configured — review request not sent.";
-  }
-  return reviewEmail.error ?? "Review request could not be sent.";
-}
-
 export async function PATCH(request: Request, { params }: RouteParams) {
   if (!(await isDashboardAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -54,23 +37,29 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     if (body.sendReviewRequest === true) {
-      const { lead, reviewEmail } = await sendReviewRequestOnly(id);
+      const { lead, reviewEmail, reviewSms } = await sendReviewRequestOnly(id);
       if (!lead) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      const { message, tone } = buildReviewChannelsMessage(reviewEmail, reviewSms);
       return NextResponse.json({
         lead,
         reviewEmail,
-        message: reviewMessage(reviewEmail),
+        reviewSms,
+        message,
+        tone,
       });
     }
 
     if (body.status && VALID_STATUSES.includes(body.status)) {
       if (body.status === "completed") {
-        const { lead, reviewEmail } = await markJobCompleted(id);
+        const { lead, reviewEmail, reviewSms } = await markJobCompleted(id);
         if (!lead) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        const { message, tone } = buildReviewChannelsMessage(reviewEmail, reviewSms);
         return NextResponse.json({
           lead,
           reviewEmail,
-          message: reviewMessage(reviewEmail),
+          reviewSms,
+          message,
+          tone,
         });
       }
 
