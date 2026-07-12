@@ -19,6 +19,7 @@ export async function GET(request: Request) {
       source: (searchParams.get("source") as LeadSource | "all") ?? "all",
       projectType: searchParams.get("projectType") ?? "all",
       unreadOnly: searchParams.get("unread") === "true",
+      newTodayOnly: searchParams.get("today") === "true",
     };
 
     const leads = filterLeads(await getLeads(), filters);

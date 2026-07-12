@@ -1,18 +1,23 @@
 "use client";
 
+import {
+  formatDateTime,
+  getTimeAgo,
+} from "@/lib/leads/admin-filters";
 import type { Lead, LeadStatus } from "@/lib/leads/types";
 import { PRIORITY_COLORS, PRIORITY_LABELS } from "@/lib/leads/scoring";
 import { cn } from "@/lib/utils";
 import {
   ChevronDown,
   ChevronUp,
+  Clock,
   ImageIcon,
   Mail,
   MapPin,
   Phone,
   Star,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AdminLeadRowProps {
   lead: Lead;
@@ -21,6 +26,7 @@ interface AdminLeadRowProps {
   onMarkRead: (id: string) => void;
   onSendReviewRequest?: (id: string) => void;
   selected: boolean;
+  defaultExpanded?: boolean;
 }
 
 const STATUS_OPTIONS: LeadStatus[] = [
@@ -31,6 +37,15 @@ const STATUS_OPTIONS: LeadStatus[] = [
   "completed",
   "lost",
 ];
+
+const STATUS_CHIP: Record<LeadStatus, string> = {
+  new: "border-accent/40 bg-accent/10 text-accent",
+  contacted: "border-blue-500/40 bg-blue-500/10 text-blue-300",
+  quoted: "border-yellow-500/40 bg-yellow-500/10 text-yellow-200",
+  won: "border-green-500/40 bg-green-500/10 text-green-300",
+  completed: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+  lost: "border-white/20 bg-white/5 text-white/50",
+};
 
 function ScoreBadge({ score }: { score: number }) {
   const color =
@@ -45,6 +60,19 @@ function ScoreBadge({ score }: { score: number }) {
   return <span className={cn("font-bold tabular-nums", color)}>{score}</span>;
 }
 
+function StatusChip({ status }: { status: LeadStatus }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase",
+        STATUS_CHIP[status]
+      )}
+    >
+      {status}
+    </span>
+  );
+}
+
 export function AdminLeadRow({
   lead,
   onSelect,
@@ -52,11 +80,36 @@ export function AdminLeadRow({
   onMarkRead,
   onSendReviewRequest,
   selected,
+  defaultExpanded = false,
 }: AdminLeadRowProps) {
-  const [expanded, setExpanded] = useState(selected);
+  const [expanded, setExpanded] = useState(defaultExpanded || selected);
+  const [timeAgo, setTimeAgo] = useState("");
+
+  useEffect(() => {
+    setTimeAgo(getTimeAgo(new Date(lead.createdAt)));
+  }, [lead.createdAt]);
+
+  useEffect(() => {
+    if (selected || defaultExpanded) setExpanded(true);
+  }, [selected, defaultExpanded]);
+
+  function openDetail() {
+    onSelect(lead);
+    setExpanded(true);
+    if (!lead.read) onMarkRead(lead.id);
+  }
+
+  function toggleExpand(e?: React.MouseEvent) {
+    e?.stopPropagation();
+    const next = !expanded;
+    setExpanded(next);
+    onSelect(lead);
+    if (next && !lead.read) onMarkRead(lead.id);
+  }
 
   return (
     <div
+      id={`lead-${lead.id}`}
       className={cn(
         "rounded-xl border bg-surface transition-all",
         !lead.read && "border-accent/30 bg-accent/[0.03]",
@@ -66,21 +119,21 @@ export function AdminLeadRow({
       {/* Desktop table row */}
       <div
         className="hidden cursor-pointer items-center gap-4 px-4 py-3 lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_100px_80px_90px_100px_40px]"
-        onClick={() => {
-          onSelect(lead);
-          if (!lead.read) onMarkRead(lead.id);
-        }}
+        onClick={openDetail}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && onSelect(lead)}
+        onKeyDown={(e) => e.key === "Enter" && openDetail()}
       >
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex min-w-0 items-center gap-2">
           {!lead.read && (
             <span className="h-2 w-2 shrink-0 rounded-full bg-accent" aria-label="Unread" />
           )}
           <div className="min-w-0">
             <p className="truncate font-medium text-white">{lead.contact.fullName}</p>
-            <p className="truncate text-xs text-white/40">{lead.contact.email}</p>
+            <p className="truncate text-xs text-white/40">
+              {lead.contact.email}
+              {timeAgo ? ` · ${timeAgo}` : ""}
+            </p>
           </div>
         </div>
         <div className="min-w-0">
@@ -115,10 +168,7 @@ export function AdminLeadRow({
         </select>
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded(!expanded);
-          }}
+          onClick={toggleExpand}
           className="text-white/30 hover:text-white"
           aria-label={expanded ? "Collapse" : "Expand"}
         >
@@ -127,44 +177,84 @@ export function AdminLeadRow({
       </div>
 
       {/* Mobile card */}
-      <div
-        className="cursor-pointer p-4 lg:hidden"
-        onClick={() => {
-          onSelect(lead);
-          if (!lead.read) onMarkRead(lead.id);
-          setExpanded(!expanded);
-        }}
-        role="button"
-        tabIndex={0}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-2">
+      <div className="p-4 lg:hidden">
+        <button
+          type="button"
+          className="flex w-full items-start justify-between gap-3 text-left"
+          onClick={toggleExpand}
+        >
+          <div className="flex min-w-0 items-start gap-2">
             {!lead.read && (
               <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" />
             )}
-            <div>
+            <div className="min-w-0">
               <p className="font-medium text-white">{lead.contact.fullName}</p>
               <p className="text-sm text-white/50">{lead.project.jobType}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <StatusChip status={lead.status} />
+                {timeAgo && (
+                  <span className="inline-flex items-center gap-1 text-[11px] text-white/35">
+                    <Clock className="h-3 w-3" aria-hidden="true" />
+                    {timeAgo}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="text-right">
+          <div className="flex shrink-0 flex-col items-end gap-1">
             <ScoreBadge score={lead.score.total} />
             <span
               className={cn(
-                "mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase",
+                "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase",
                 PRIORITY_COLORS[lead.score.priority]
               )}
             >
               {lead.score.priority}
             </span>
+            {expanded ? (
+              <ChevronUp className="mt-1 h-4 w-4 text-white/30" />
+            ) : (
+              <ChevronDown className="mt-1 h-4 w-4 text-white/30" />
+            )}
           </div>
+        </button>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a
+            href={`tel:${lead.contact.phone.replace(/\s/g, "")}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent-muted px-3 py-2.5 text-xs font-semibold text-accent sm:flex-none"
+          >
+            <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+            Call
+          </a>
+          <a
+            href={`mailto:${lead.contact.email}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white/5 px-3 py-2.5 text-xs font-semibold text-white/70 sm:flex-none"
+          >
+            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+            Email
+          </a>
+          <select
+            value={lead.status}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => onStatusChange(lead.id, e.target.value as LeadStatus)}
+            className="min-w-[7.5rem] flex-1 rounded-lg border border-surface-border bg-surface-elevated px-3 py-2.5 text-xs text-white sm:flex-none"
+            aria-label="Lead status"
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
       {expanded && (
         <AdminLeadDetail
           lead={lead}
-          onStatusChange={onStatusChange}
           onSendReviewRequest={onSendReviewRequest}
           className="border-t border-surface-border"
         />
@@ -175,20 +265,17 @@ export function AdminLeadRow({
 
 interface AdminLeadDetailProps {
   lead: Lead;
-  onStatusChange: (id: string, status: LeadStatus) => void;
   onSendReviewRequest?: (id: string) => void;
   className?: string;
 }
 
 export function AdminLeadDetail({
   lead,
-  onStatusChange,
   onSendReviewRequest,
   className,
 }: AdminLeadDetailProps) {
   return (
     <div className={cn("grid gap-6 p-4 md:p-5 lg:grid-cols-2", className)}>
-      {/* Customer details */}
       <div>
         <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent">
           Customer Details
@@ -196,7 +283,7 @@ export function AdminLeadDetail({
         <dl className="space-y-2 text-sm">
           <DetailRow label="Name" value={lead.contact.fullName} />
           <DetailRow label="Phone">
-            <a href={`tel:${lead.contact.phone}`} className="text-accent hover:underline">
+            <a href={`tel:${lead.contact.phone.replace(/\s/g, "")}`} className="text-accent hover:underline">
               {lead.contact.phone}
             </a>
           </DetailRow>
@@ -214,6 +301,12 @@ export function AdminLeadDetail({
           {lead.contact.contactMethod && (
             <DetailRow label="Preferred contact" value={lead.contact.contactMethod} />
           )}
+          <DetailRow label="Submitted" value={`${formatDateTime(lead.createdAt)} (${getTimeAgo(new Date(lead.createdAt))})`} />
+          <DetailRow label="Updated" value={formatDateTime(lead.updatedAt)} />
+          <DetailRow
+            label="Source"
+            value={lead.source === "quote-form" ? "Quote form" : "Quote assistant"}
+          />
         </dl>
 
         <h4 className="mb-3 mt-5 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -230,13 +323,30 @@ export function AdminLeadDetail({
             <DetailRow label="Area" value={`${lead.project.squareMetres} m²`} />
           )}
           {lead.project.urgency && <DetailRow label="Timeline" value={lead.project.urgency} />}
+          {lead.project.waterDamage != null && (
+            <DetailRow
+              label="Water damage"
+              value={lead.project.waterDamage ? "Yes" : "No"}
+            />
+          )}
+          {lead.project.commercialBusinessName && (
+            <DetailRow
+              label="Business"
+              value={lead.project.commercialBusinessName}
+            />
+          )}
+          {lead.project.commercialFloorCount && (
+            <DetailRow
+              label="Floors"
+              value={lead.project.commercialFloorCount}
+            />
+          )}
           {lead.project.description && (
             <DetailRow label="Description" value={lead.project.description} />
           )}
         </dl>
       </div>
 
-      {/* Score + photos */}
       <div>
         <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent">
           Lead Score — {lead.score.total}/100
@@ -261,6 +371,9 @@ export function AdminLeadDetail({
                   style={{ width: `${(f.score / f.max) * 100}%` }}
                 />
               </div>
+              {f.detail && (
+                <p className="mt-1.5 text-[11px] leading-snug text-white/35">{f.detail}</p>
+              )}
             </div>
           ))}
         </div>
@@ -272,11 +385,7 @@ export function AdminLeadDetail({
           </h4>
           {lead.reviewRequestSentAt ? (
             <p className="text-xs text-white/60">
-              Review email sent{" "}
-              {new Date(lead.reviewRequestSentAt).toLocaleString("en-AU", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
+              Review email sent {formatDateTime(lead.reviewRequestSentAt)}
             </p>
           ) : (
             <p className="text-xs text-white/50">
@@ -323,9 +432,9 @@ export function AdminLeadDetail({
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap gap-2 lg:hidden">
+        <div className="mt-4 hidden flex-wrap gap-2 lg:flex">
           <a
-            href={`tel:${lead.contact.phone}`}
+            href={`tel:${lead.contact.phone.replace(/\s/g, "")}`}
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-muted px-3 py-2 text-xs font-medium text-accent"
           >
             <Phone className="h-3.5 w-3.5" aria-hidden="true" />
@@ -338,17 +447,6 @@ export function AdminLeadDetail({
             <Mail className="h-3.5 w-3.5" aria-hidden="true" />
             Email
           </a>
-          <select
-            value={lead.status}
-            onChange={(e) => onStatusChange(lead.id, e.target.value as LeadStatus)}
-            className="rounded-lg border border-surface-border bg-surface-elevated px-3 py-2 text-xs text-white"
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
     </div>

@@ -115,6 +115,13 @@ export function filterLeads(leads: Lead[], filters: LeadFilters): Lead[] {
     result = result.filter((l) => !l.read);
   }
 
+  if (filters.newTodayOnly) {
+    const today = new Date().toDateString();
+    result = result.filter(
+      (l) => new Date(l.createdAt).toDateString() === today
+    );
+  }
+
   if (filters.priority && filters.priority !== "all") {
     result = result.filter((l) => l.score.priority === filters.priority);
   }

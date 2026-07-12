@@ -1,43 +1,43 @@
 "use client";
 
 import { AdminLeadRow } from "@/components/admin/AdminLeadRow";
-import { AdminStatsBar } from "@/components/admin/AdminStatsBar";
+import {
+  AdminStatsBar,
+  applyStatsFilterAction,
+  type StatsFilterAction,
+} from "@/components/admin/AdminStatsBar";
 import { AdminToolbar } from "@/components/admin/AdminToolbar";
 import { DashboardLogin } from "@/components/dashboard/DashboardLogin";
 import { Logo } from "@/components/ui/Logo";
+import {
+  buildLeadQueryString,
+  DEFAULT_LEAD_FILTERS,
+  parseLeadFilters,
+} from "@/lib/leads/admin-filters";
 import { siteConfig } from "@/lib/site-config";
 import type { Lead, LeadFilters, LeadStats, LeadStatus } from "@/lib/leads/types";
 import { cn } from "@/lib/utils";
 import { LogOut, RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-
-const DEFAULT_FILTERS: LeadFilters = {
-  search: "",
-  priority: "all",
-  status: "all",
-  source: "all",
-  projectType: "all",
-  unreadOnly: false,
-};
-
-function buildQueryString(filters: LeadFilters): string {
-  const params = new URLSearchParams();
-  if (filters.search) params.set("search", filters.search);
-  if (filters.priority && filters.priority !== "all") params.set("priority", filters.priority);
-  if (filters.status && filters.status !== "all") params.set("status", filters.status);
-  if (filters.source && filters.source !== "all") params.set("source", filters.source);
-  if (filters.projectType && filters.projectType !== "all") params.set("projectType", filters.projectType);
-  if (filters.unreadOnly) params.set("unread", "true");
-  return params.toString();
-}
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function AdminDashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlSynced = useRef(false);
+
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [stats, setStats] = useState<LeadStats | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
   const [projectTypes, setProjectTypes] = useState<string[]>([]);
-  const [filters, setFilters] = useState<LeadFilters>(DEFAULT_FILTERS);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filters, setFilters] = useState<LeadFilters>(() =>
+    parseLeadFilters(searchParams)
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => searchParams.get("lead")
+  );
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [actionMessage, setActionMessage] = useState<{
@@ -53,27 +53,62 @@ export function AdminDashboard() {
     window.setTimeout(() => setActionMessage(null), 6000);
   }
 
+  // Keep URL in sync with filters + selected lead
+  useEffect(() => {
+    if (!authenticated) return;
+    const qs = buildLeadQueryString(filters, selectedId);
+    const next = qs ? `${pathname}?${qs}` : pathname;
+    const current = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+    if (next !== current) {
+      urlSynced.current = true;
+      router.replace(next, { scroll: false });
+    }
+  }, [authenticated, filters, selectedId, pathname, router, searchParams]);
+
+  // Browser back/forward
+  useEffect(() => {
+    if (urlSynced.current) {
+      urlSynced.current = false;
+      return;
+    }
+    setFilters(parseLeadFilters(searchParams));
+    setSelectedId(searchParams.get("lead"));
+  }, [searchParams]);
+
   async function patchLead(
     id: string,
     body: Record<string, unknown>
-  ): Promise<Lead | null> {
-    const res = await fetch(`/api/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.message) {
-      const tone =
-        data.reviewEmail?.sent === true
-          ? "success"
-          : data.reviewEmail?.error
-            ? "error"
-            : "warning";
-      showActionMessage(data.message, tone);
+  ): Promise<{ lead: Lead | null; showedMessage: boolean }> {
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showActionMessage(
+          data.error ?? "Could not update this enquiry. Try again.",
+          "error"
+        );
+        return { lead: null, showedMessage: true };
+      }
+      const data = await res.json();
+      if (data.message) {
+        const tone =
+          data.reviewEmail?.sent === true
+            ? "success"
+            : data.reviewEmail?.error
+              ? "error"
+              : "warning";
+        showActionMessage(data.message, tone);
+        return { lead: data.lead ?? null, showedMessage: true };
+      }
+      return { lead: data.lead ?? null, showedMessage: false };
+    } catch {
+      showActionMessage("Network error — could not update enquiry.", "error");
+      return { lead: null, showedMessage: true };
     }
-    return data.lead ?? null;
   }
 
   const checkAuth = useCallback(async () => {
@@ -82,26 +117,35 @@ export function AdminDashboard() {
     setAuthenticated(data.authenticated);
   }, []);
 
-  const loadLeads = useCallback(async (currentFilters: LeadFilters) => {
-    setLoading(true);
-    try {
-      const qs = buildQueryString(currentFilters);
-      const res = await fetch(`/api/admin/leads?${qs}`);
-      if (res.status === 401) {
-        setAuthenticated(false);
-        return;
+  const loadLeads = useCallback(
+    async (currentFilters: LeadFilters, opts?: { silent?: boolean }) => {
+      setLoading(true);
+      try {
+        const qs = buildLeadQueryString(currentFilters);
+        const res = await fetch(`/api/admin/leads?${qs}`);
+        if (res.status === 401) {
+          setAuthenticated(false);
+          return;
+        }
+        if (!res.ok) throw new Error("Failed to load");
+        const data = await res.json();
+        setLeads(data.leads);
+        setStats(data.stats);
+        setTotalCount(data.total ?? data.stats?.total ?? data.leads.length);
+        setProjectTypes(data.projectTypes ?? []);
+      } catch {
+        if (!opts?.silent) {
+          showActionMessage(
+            "Could not load enquiries. Check your connection and refresh.",
+            "error"
+          );
+        }
+      } finally {
+        setLoading(false);
       }
-      if (!res.ok) throw new Error("Failed to load");
-      const data = await res.json();
-      setLeads(data.leads);
-      setStats(data.stats);
-      setProjectTypes(data.projectTypes ?? []);
-    } catch {
-      console.error("Failed to load leads");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     checkAuth();
@@ -109,9 +153,20 @@ export function AdminDashboard() {
 
   useEffect(() => {
     if (!authenticated) return;
-    const timer = setTimeout(() => loadLeads(filters), filters.search ? 300 : 0);
+    const timer = setTimeout(
+      () => loadLeads(filters),
+      filters.search ? 300 : 0
+    );
     return () => clearTimeout(timer);
   }, [authenticated, filters, loadLeads]);
+
+  useEffect(() => {
+    if (!selectedId || leads.length === 0) return;
+    const el = document.getElementById(`lead-${selectedId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedId, leads.length]);
 
   async function handleLogout() {
     await fetch("/api/dashboard/auth", { method: "DELETE" });
@@ -121,14 +176,17 @@ export function AdminDashboard() {
   }
 
   async function handleStatusChange(id: string, status: LeadStatus) {
-    const lead = await patchLead(id, { status });
+    const { lead, showedMessage } = await patchLead(id, { status });
     if (lead) {
       setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
+      if (!showedMessage) {
+        showActionMessage(`Status updated to ${status}.`, "success");
+      }
     }
   }
 
   async function handleSendReviewRequest(id: string) {
-    const lead = await patchLead(id, { sendReviewRequest: true });
+    const { lead } = await patchLead(id, { sendReviewRequest: true });
     if (lead) {
       setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
     }
@@ -138,24 +196,30 @@ export function AdminDashboard() {
     const existing = leads.find((l) => l.id === id);
     const wasUnread = existing && !existing.read;
 
-    const res = await fetch(`/api/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ read: true }),
-    });
-    if (res.ok) {
-      const { lead } = await res.json();
-      setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
-      if (wasUnread) {
-        setStats((s) => (s ? { ...s, unread: Math.max(0, s.unread - 1) } : s));
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ read: true }),
+      });
+      if (res.ok) {
+        const { lead } = await res.json();
+        setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
+        if (wasUnread) {
+          setStats((s) =>
+            s ? { ...s, unread: Math.max(0, s.unread - 1) } : s
+          );
+        }
       }
+    } catch {
+      // Non-blocking — don't interrupt triage for mark-read failures
     }
   }
 
   async function handleExport() {
     setExporting(true);
     try {
-      const qs = buildQueryString(filters);
+      const qs = buildLeadQueryString(filters);
       const res = await fetch(`/api/admin/export?${qs}`);
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
@@ -165,9 +229,16 @@ export function AdminDashboard() {
       a.download = `enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+      showActionMessage("CSV export downloaded.", "success");
+    } catch {
+      showActionMessage("Export failed. Please try again.", "error");
     } finally {
       setExporting(false);
     }
+  }
+
+  function handleStatsAction(action: StatsFilterAction) {
+    setFilters(applyStatsFilterAction(filters, action));
   }
 
   if (authenticated === null) {
@@ -189,15 +260,23 @@ export function AdminDashboard() {
           <div className="flex items-center gap-3">
             <Logo display="mark" size="sm" />
             <div>
-              <h1 className="text-sm font-bold text-white sm:text-base">Admin Dashboard</h1>
-              <p className="hidden text-xs text-white/40 sm:block">{siteConfig.name}</p>
+              <h1 className="text-sm font-bold text-white sm:text-base">
+                Admin Dashboard
+              </h1>
+              <p className="hidden text-xs text-white/40 sm:block">
+                {siteConfig.name}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             {stats && stats.unread > 0 && (
-              <span className="mr-2 rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white">
+              <button
+                type="button"
+                onClick={() => handleStatsAction({ type: "unread" })}
+                className="mr-2 rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white hover:bg-accent-hover"
+              >
                 {stats.unread} unread
-              </span>
+              </button>
             )}
             <button
               type="button"
@@ -231,26 +310,33 @@ export function AdminDashboard() {
               actionMessage.tone === "warning" &&
                 "border-yellow-500/30 bg-yellow-500/10 text-yellow-100",
               actionMessage.tone === "error" &&
-                "border-accent/50 bg-accent/10 text-white"
+                "border-red-500/40 bg-red-500/10 text-red-100"
             )}
           >
             {actionMessage.text}
           </div>
         )}
 
-        {stats && <AdminStatsBar stats={stats} />}
+        {stats && (
+          <AdminStatsBar
+            stats={stats}
+            filters={filters}
+            onFilterAction={handleStatsAction}
+          />
+        )}
 
         <div className="mt-6">
           <AdminToolbar
             filters={filters}
             projectTypes={projectTypes}
+            resultCount={leads.length}
+            totalCount={totalCount}
             onFiltersChange={setFilters}
             onExport={handleExport}
             exporting={exporting}
           />
         </div>
 
-        {/* Table header — desktop */}
         <div className="mt-4 hidden px-4 text-xs font-medium uppercase tracking-wider text-white/30 lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_100px_80px_90px_100px_40px] lg:gap-4">
           <span>Customer</span>
           <span>Project</span>
@@ -262,14 +348,38 @@ export function AdminDashboard() {
         </div>
 
         <div className="mt-2 space-y-2">
-          {leads.length === 0 ? (
+          {loading && leads.length === 0 ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-20 animate-pulse rounded-xl border border-surface-border bg-surface"
+                />
+              ))}
+            </div>
+          ) : leads.length === 0 ? (
             <div className="rounded-xl border border-dashed border-surface-border py-16 text-center">
               <p className="text-white/50">No enquiries found</p>
               <p className="mt-1 text-sm text-white/30">
-                {filters.search || filters.unreadOnly
+                {filters.search ||
+                filters.unreadOnly ||
+                filters.newTodayOnly ||
+                (filters.priority && filters.priority !== "all")
                   ? "Try adjusting your search or filters"
                   : "New quote requests will appear here automatically"}
               </p>
+              {(filters.search ||
+                filters.unreadOnly ||
+                filters.newTodayOnly ||
+                (filters.priority && filters.priority !== "all")) && (
+                <button
+                  type="button"
+                  onClick={() => setFilters({ ...DEFAULT_LEAD_FILTERS })}
+                  className="mt-4 text-sm font-medium text-accent hover:underline"
+                >
+                  Clear filters
+                </button>
+              )}
             </div>
           ) : (
             leads.map((lead) => (
@@ -277,6 +387,7 @@ export function AdminDashboard() {
                 key={lead.id}
                 lead={lead}
                 selected={selectedId === lead.id}
+                defaultExpanded={selectedId === lead.id}
                 onSelect={(l) => setSelectedId(l.id)}
                 onStatusChange={handleStatusChange}
                 onMarkRead={handleMarkRead}

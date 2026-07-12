@@ -108,4 +108,5 @@ export interface LeadFilters {
   source?: LeadSource | "all";
   projectType?: string;
   unreadOnly?: boolean;
+  newTodayOnly?: boolean;
 }

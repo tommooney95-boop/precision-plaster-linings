@@ -23,6 +23,7 @@ export async function GET(request: Request) {
       source: (searchParams.get("source") as LeadSource | "all") ?? "all",
       projectType: searchParams.get("projectType") ?? "all",
       unreadOnly: searchParams.get("unread") === "true",
+      newTodayOnly: searchParams.get("today") === "true",
     };
 
     const [allLeads, stats, projectTypes] = await Promise.all([
@@ -33,7 +34,14 @@ export async function GET(request: Request) {
 
     const leads = filterLeads(allLeads, filters);
 
-    return NextResponse.json({ leads, stats, projectTypes, filters });
+    return NextResponse.json({
+      leads,
+      stats,
+      projectTypes,
+      filters,
+      total: allLeads.length,
+      filteredCount: leads.length,
+    });
   } catch {
     return NextResponse.json({ error: "Failed to load leads" }, { status: 500 });
   }
