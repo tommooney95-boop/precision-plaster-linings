@@ -168,7 +168,7 @@ export const seoConfig = {
 
       title: `Free Plastering Quote – ${locationLabel}`,
 
-      description: `Request a free, no-obligation plastering quote in ${regionName}. Upload photos, describe your project and receive a detailed estimate within 24 hours.`,
+      description: `Request a free, no-obligation plastering quote in ${regionName}. Upload photos, describe your project and receive a detailed estimate within 2 business days.`,
 
     },
 

@@ -55,7 +55,7 @@ export default function HomePage() {
               <SectionHeading
                 eyebrow="Free Quote"
                 title="Get Your Project Started Today"
-                description="Tell us about your project and receive a detailed, no-obligation quote within 24 hours. Upload photos to help us provide the most accurate estimate."
+                description="Tell us about your project and receive a detailed, no-obligation quote within 2 business days. Upload photos to help us provide the most accurate estimate."
                 align="left"
               />
               <div className="mt-8 space-y-4">

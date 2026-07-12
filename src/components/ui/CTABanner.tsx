@@ -24,7 +24,7 @@ export function CTABanner({
 
   title = "Ready to Start Your Project?",
 
-  description = `Get a free, no-obligation quote from ${siteConfig.location.regionName}'s trusted plastering professionals. We respond within 24 hours.`,
+  description = `Get a free, no-obligation quote from ${siteConfig.location.regionName}'s trusted plastering professionals. We respond within 2 business days.`,
 
   className,
 

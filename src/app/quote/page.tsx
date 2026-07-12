@@ -23,7 +23,7 @@ export default function QuotePage() {
           <SectionHeading
             eyebrow="Free Quote"
             title="Request Your Free Quote"
-            description="Tell us about your project and we'll provide a detailed, no-obligation estimate within 24 hours."
+            description="Tell us about your project and we'll provide a detailed, no-obligation estimate within 2 business days."
           />
         </div>
       </section>
@@ -46,7 +46,7 @@ export default function QuotePage() {
                   {[
                     "Submit your project details and photos",
                     "We review and prepare your quote",
-                    "Receive your detailed estimate within 24 hours",
+                    "Receive your detailed estimate within 2 business days",
                     "Book your project at a time that suits you",
                   ].map((step, i) => (
                     <li key={step} className="flex gap-3 text-sm text-white/60">

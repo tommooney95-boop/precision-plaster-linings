@@ -40,7 +40,7 @@ export const faqs: FAQ[] = [
 
     answer:
 
-      "Yes! We offer completely free, no-obligation quotes for all plastering work. Simply fill out our online quote form, call us, or send an email. We aim to provide detailed quotes within 24 hours of your enquiry.",
+      "Yes! We offer completely free, no-obligation quotes for all plastering work. Simply fill out our online quote form, call us, or send an email. We aim to provide detailed quotes within 2 business days of your enquiry.",
 
   },
 

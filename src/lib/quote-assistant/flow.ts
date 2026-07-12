@@ -213,7 +213,7 @@ export const FLOW_STEPS: Record<string, FlowStep> = {
   submitted: {
     id: "submitted",
     question:
-      "Thank you! Your quote request has been sent. We'll contact you within 24 hours.",
+      "Thank you! Your quote request has been sent. We'll contact you within 2 business days.",
     inputType: "none",
   },
 };

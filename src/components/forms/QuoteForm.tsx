@@ -113,7 +113,7 @@ export function QuoteForm({ className, compact = false }: QuoteFormProps) {
         />
         <h3 className="text-2xl font-bold text-white">Thank You!</h3>
         <p className="mt-3 max-w-md text-lg text-white/60">
-          We&apos;ll contact you within 24 hours to discuss your project.
+          We&apos;ll contact you within 2 business days to discuss your project.
         </p>
         <Button
           variant="outline"
@@ -140,8 +140,8 @@ export function QuoteForm({ className, compact = false }: QuoteFormProps) {
         <div className="mb-8">
           <h3 className="text-2xl font-bold text-white">Request a Free Quote</h3>
           <p className="mt-2 text-white/50">
-            Fill in the details below and we&apos;ll get back to you within 24
-            hours.
+            Fill in the details below and we&apos;ll get back to you within 2
+            business days.
           </p>
         </div>
       )}

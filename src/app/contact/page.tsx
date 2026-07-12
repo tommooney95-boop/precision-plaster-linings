@@ -62,7 +62,7 @@ export default function ContactPage() {
                     {siteConfig.contact.email}
                   </p>
                   <p className="mt-1 text-sm text-white/40">
-                    We respond within 24 hours
+                    We respond within 2 business days
                   </p>
                 </div>
               </a>
@@ -101,7 +101,7 @@ export default function ContactPage() {
               </h2>
               <p className="mt-3 text-white/50">
                 Fill out our detailed quote form with project photos and
-                we&apos;ll provide an accurate estimate within 24 hours.
+                we&apos;ll provide an accurate estimate within 2 business days.
               </p>
               <ButtonLink href="/quote" size="lg" className="mt-6 w-full">
                 Request a Free Quote

@@ -144,7 +144,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
         <div className="container-custom">
           <CTABanner
             title={`Need ${service.title} in ${siteConfig.location.regionName}?`}
-            description="Get a free, no-obligation quote. We respond within 24 hours."
+            description="Get a free, no-obligation quote. We respond within 2 business days."
           />
         </div>
       </AnimatedSection>
