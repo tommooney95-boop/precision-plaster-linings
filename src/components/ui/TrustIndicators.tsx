@@ -1,10 +1,23 @@
 import { siteConfig } from "@/lib/site-config";
+import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-export function TrustIndicators() {
+interface TrustIndicatorsProps {
+  align?: "left" | "center";
+  className?: string;
+}
+
+export function TrustIndicators({
+  align = "center",
+  className,
+}: TrustIndicatorsProps) {
   return (
     <ul
-      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3"
+      className={cn(
+        "flex flex-wrap items-center gap-x-6 gap-y-3",
+        align === "center" ? "justify-center" : "justify-start",
+        className
+      )}
       aria-label="Trust indicators"
     >
       {siteConfig.trustIndicators.map((item) => (

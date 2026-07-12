@@ -22,9 +22,9 @@ interface CTABannerProps {
 
 export function CTABanner({
 
-  title = "Ready to Start Your Project?",
+  title = "Ready when you are.",
 
-  description = `Get a free, no-obligation quote from ${siteConfig.location.regionName}'s trusted plastering professionals. We respond within 2 business days.`,
+  description = `Get a free, no-obligation quote from ${siteConfig.location.regionName}'s trusted plastering team. Clear estimates within 2 business days — call us or send the form.`,
 
   className,
 

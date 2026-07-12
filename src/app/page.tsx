@@ -1,6 +1,7 @@
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { QuoteForm } from "@/components/forms/QuoteForm";
 import { HeroSection } from "@/components/home/HeroSection";
+import { TrustBand } from "@/components/home/TrustBand";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { TestimonialCard } from "@/components/testimonials/TestimonialCard";
 import { FAQItem } from "@/components/faq/FAQItem";
@@ -21,13 +22,15 @@ export default function HomePage() {
     <>
       <HeroSection />
 
-      {/* Services */}
+      <TrustBand />
+
+      {/* Services hub */}
       <AnimatedSection className="section-padding">
         <div className="container-custom">
           <SectionHeading
-            eyebrow="Our Services"
-            title="Expert Plastering for Every Project"
-            description={`From small patch repairs to full commercial fit-outs, ${siteConfig.name} delivers premium results across ${siteConfig.location.serviceArea}.`}
+            eyebrow="Services"
+            title="How can we help?"
+            description={`From small patch repairs to full commercial fit-outs — choose a service below or request a free quote. We cover ${siteConfig.location.regionName} and surrounds.`}
           />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
@@ -133,8 +136,8 @@ export default function HomePage() {
         <div className="container-custom">
           <SectionHeading
             eyebrow="Testimonials"
-            title="Trusted by Homeowners & Builders"
-            description="Don't just take our word for it — hear from our satisfied clients."
+            title="Trusted by homeowners & builders"
+            description={`Honest feedback from clients across ${siteConfig.location.regionName}.`}
           />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.slice(0, 3).map((t) => (

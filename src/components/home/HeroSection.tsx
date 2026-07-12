@@ -40,8 +40,12 @@ export function HeroSection() {
           <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
             Professional Plastering Done Right The First Time
           </h1>
-          <p className="mt-6 text-lg text-white/60 md:text-xl">
-            Residential • Commercial • Renovations • Repairs
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/65 md:text-xl">
+            Residential, commercial, renovations and repairs — clean finishes,
+            honest quotes, and a reliable local team.
+          </p>
+          <p className="mt-3 text-sm font-medium uppercase tracking-wider text-white/40">
+            Gyprock · Ceilings · Cornice · Patch &amp; insurance work
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -54,12 +58,12 @@ export function HeroSection() {
               size="lg"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
-              Call Now
+              Call {siteConfig.contact.phone}
             </ButtonLink>
           </div>
 
           <div className="mt-12 border-t border-white/10 pt-8">
-            <TrustIndicators />
+            <TrustIndicators align="left" />
           </div>
         </motion.div>
       </div>
